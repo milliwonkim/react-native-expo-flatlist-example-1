@@ -1,21 +1,85 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import {
+    TextInput,
+    StyleSheet,
+    Text,
+    View,
+    Button,
+    ScrollView,
+    FlatList,
+} from 'react-native';
+import GoalItem from './components/GoalItem';
+import GoalInput from './components/GoalInput';
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    const [courseGoals, setCourseGoal] = useState([]);
+    const [isAddMode, setIsAddMode] = useState(false);
+
+    const addGoalHandler = (goalTitle) => {
+        setCourseGoal((currentGoals) => [
+            ...currentGoals,
+            {
+                id: Math.random().toString(),
+                value: goalTitle,
+            },
+        ]);
+        setIsAddMode(false);
+    };
+
+    const removeGoalHandler = (goalId) => {
+        console.log('TO BE DELETED: ' + goalId);
+        console.log(courseGoals);
+        setCourseGoal((currentGoals) => {
+            return currentGoals.filter((goal) => goal.id !== goalId);
+        });
+    };
+
+    const cancelGoalAdditionHandler = () => {
+        setIsAddMode(false);
+    };
+
+    return (
+        <View style={styles.screen}>
+            <GoalInput
+                visible={isAddMode}
+                onAddGoal={addGoalHandler}
+                onCancel={cancelGoalAdditionHandler}
+            />
+            <FlatList
+                keyExtractor={(item) => item.id}
+                data={courseGoals}
+                renderItem={(itemData) => (
+                    <GoalItem
+                        id={itemData.item.id}
+                        onDelete={removeGoalHandler}
+                        title={itemData.item.value}
+                    />
+                )}
+            />
+            <Button
+                title='Add New Goal'
+                onPress={() => setIsAddMode(!isAddMode)}
+            />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    screen: {
+        padding: 50,
+    },
+    input: {
+        width: '80%',
+        borderColor: 'black',
+        borderWidth: 1,
+        padding: 10,
+    },
+    listItem: {
+        padding: 10,
+        marginVertical: 10,
+        backgroundColor: '#ccc',
+        borderColor: 'black',
+        borderWidth: 1,
+    },
 });
